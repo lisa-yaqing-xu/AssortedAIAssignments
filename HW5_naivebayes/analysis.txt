@@ -1,0 +1,90 @@
+Naive Bayes
+Yaqing (Lisa) Xu
+
+To run the program, put trainingimages.txt traininglabels.txt testimages.txt testlabels.txt in as the arguments of the program, or whatever other file that serves the same purpose, as long as in that order.
+
+The basic premise of my implementation is, read in the images, weigh the probabilities slightly for background and grey(see below), and add the probabilities to the total conditional probability matrix. After all 5000 images are read in, divide each conditional probability matrix by the total number of its respective label read in, to get the accurate conditional probability per class.
+
+When testing the features, I only used 0 and 1 (0 for white, 1 for black and grey) for the image data, since here it's just trying to see if it's a background or foreground pixel. I bit-flipped the image, so that 1 is 0 and 0 is 1, since where a 0 is means that I need to do 1-p on the cached probability, and vice versa. I used that to subtract each conditional probability matrix, but now cases with probability p is all negated since 0-p = -p. That's okay. It's multiplication. I multiply them all together and just take the absolute value to take care of the negatives.
+
+So then I just loop through each probability cache and pick the one that returns the highest probability.
+
+
+I weighted the features slightly in my implementation. For a ~.6-.7 second increase in training time, I improved the accuracy of the predictions by 1.8%. Without any modifications the accuracy, as reported by many others as well, is 76.7%. That takes 1.4 seconds to run with my code.
+
+The weights are basically:
+	Grey/anti aliasing pixels are weighted with p = 0.9 instead of p = 1 because they're supposed to represent the semi-transparent anti-aliasing. .9 is the value I found with the most beneficial increase, so I kept that.
+	White background pixels are given a small p = .0000000001 to prevent them from throwing out otherwise high probabilities entirely due to multiplication by 0 just because one stray pixel landed there or something.
+
+Here is the printout from the code. Time obviously would slightly vary, but not by much. The labels aren't in order since I saved them by the order I read them in so it's dynamic and I didn't really feel like sorting them just to print things out, especially since data is saved across several lists.
+
+============================================================
+without any modifications
+
+training finished in 1.283316 seconds.
+tested 1000 images, correct on 767 images, for overall 76.700000% accuracy
+breakdown statistics:
+label 5, 92 tested,  63 accurate for 68.478261% accuracy
+label 0, 90 tested,  74 accurate for 82.222222% accuracy
+label 4, 107 tested,  77 accurate for 71.962617% accuracy
+label 1, 108 tested,  104 accurate for 96.296296% accuracy
+label 9, 100 tested,  81 accurate for 81.000000% accuracy
+label 2, 103 tested,  81 accurate for 78.640777% accuracy
+label 3, 100 tested,  79 accurate for 79.000000% accuracy
+label 6, 91 tested,  70 accurate for 76.923077% accuracy
+label 7, 106 tested,  76 accurate for 71.698113% accuracy
+label 8, 103 tested,  62 accurate for 60.194175% accuracy
+testing finished in 0.608991 seconds.
+
+============================================================
+with only adjustments to grey pixel features:
+
+training finished in 1.756074 seconds.
+tested 1000 images, correct on 775 images, for overall 77.500000% accuracy
+breakdown statistics:
+label 5, 92 tested,  63 accurate for 68.478261% accuracy
+label 0, 90 tested,  75 accurate for 83.333333% accuracy
+label 4, 107 tested,  76 accurate for 71.028037% accuracy
+label 1, 108 tested,  103 accurate for 95.370370% accuracy
+label 9, 100 tested,  82 accurate for 82.000000% accuracy
+label 2, 103 tested,  81 accurate for 78.640777% accuracy
+label 3, 100 tested,  81 accurate for 81.000000% accuracy
+label 6, 91 tested,  71 accurate for 78.021978% accuracy
+label 7, 106 tested,  76 accurate for 71.698113% accuracy
+label 8, 103 tested,  67 accurate for 65.048544% accuracy
+testing finished in 0.606926 seconds.
+============================================================
+with only adjustments to background weighting:
+
+training finished in 1.745826 seconds.
+tested 1000 images, correct on 777 images, for overall 77.700000% accuracy
+breakdown statistics:
+label 5, 92 tested,  63 accurate for 68.478261% accuracy
+label 0, 90 tested,  76 accurate for 84.444444% accuracy
+label 4, 107 tested,  80 accurate for 74.766355% accuracy
+label 1, 108 tested,  104 accurate for 96.296296% accuracy
+label 9, 100 tested,  81 accurate for 81.000000% accuracy
+label 2, 103 tested,  83 accurate for 80.582524% accuracy
+label 3, 100 tested,  80 accurate for 80.000000% accuracy
+label 6, 91 tested,  71 accurate for 78.021978% accuracy
+label 7, 106 tested,  77 accurate for 72.641509% accuracy
+label 8, 103 tested,  62 accurate for 60.194175% accuracy
+testing finished in 0.626011 seconds.
+============================================================
+with both feature adjustments:
+
+training finished in 2.158585 seconds.
+tested 1000 images, correct on 785 images, for overall 78.500000% accuracy
+breakdown statistics:
+label 5, 92 tested,  63 accurate for 68.478261% accuracy
+label 0, 90 tested,  77 accurate for 85.555556% accuracy
+label 4, 107 tested,  79 accurate for 73.831776% accuracy
+label 1, 108 tested,  103 accurate for 95.370370% accuracy
+label 9, 100 tested,  82 accurate for 82.000000% accuracy
+label 2, 103 tested,  83 accurate for 80.582524% accuracy
+label 3, 100 tested,  82 accurate for 82.000000% accuracy
+label 6, 91 tested,  72 accurate for 79.120879% accuracy
+label 7, 106 tested,  77 accurate for 72.641509% accuracy
+label 8, 103 tested,  67 accurate for 65.048544% accuracy
+testing finished in 0.838052 seconds.
+============================================================

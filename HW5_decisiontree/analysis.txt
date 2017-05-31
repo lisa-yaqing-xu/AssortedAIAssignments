@@ -1,0 +1,97 @@
+I wrote splitdata.py to split the data into a 90-10 training-testing split (540/60) randomly. Since I already split the data it's not necessary to do it again, but I included it anyway.
+
+To run the code, put traindata.txt testdata.txt (or whatever training/testing data of your choice) as the arguments to the program. decisiontree.py is the one you should run this with.
+
+For the actual decision tree, first I set up a database with all the different categories and each of their possible values coded in, given discrete categories. The continuous brackets are calculated after loading in the data, so they're initialized to empty arrays.
+
+I also set up an array that tells whether a category is continuous or discrete.
+
+Then I setup a two-dimensional array to store each value read in per category. Because their index correspond to the order in which they're read in, the index will be the indicator of what group of data it came from.
+
+because it's just reading in line by line this time I didn't bother writing a single line reader for both, in contrast to the naive bayesian homework where I had to format image data into matrices. So both load and test take one file name.
+
+Most of the implementation is done in db.py. I'll just briefly go over the logic in each function.
+
+set_brackets - this sets the brackets for each continuous variable category to test against. I sort the data, then divide the length of the data by 10, to put into 10 brackets. I use set to remove duplicates, and write it back to the data_vals data structure.
+
+get_bracket - honestly I could've done a straight linear search here considering 10 is not a big number and it wouldn't have impacted performance too much, but I decided to implement binary search instead in case someone wanted bigger brackets since it's has to be in sorted order to work anyway. Scalability, I guess. Fairly straightforward here.
+
+hx - entropy function. Exactly what it says on the tin. returns -(probability) * log2(probability). short and simple so i don't have to type it many times. This calcuates the entropy for one single probability so I can just put them together later in the bigger functions.
+
+set_global_hx - I actually didn't really use global_hx, but it was nice having the sets of indices of + and - separated out there too. Technically the IG wanted h(x) of the node it's branching off from, but since that's constant given the root I can really just test for whatever leaf's h(x) is smaller and it'd do exactly the same thing but with less computations.
+
+calc_hx - actually getting to the meat of things here. I take an index and the subset of indices it needs to intersect with (initial root calculations can just set that to None and the intersection won't be calculated), interset that with both the + index set and the - index set separately, and you get the subset of values in that particular category that needs to also conform to another subset of values split into the ones that are + and the ones that are -. Then calculate h(x) using lengths and total lengths. if there's ? values in the subset, then calculate based on proportion of existing values. return an object containing the h(x) of each subcategory (or numerical bracket) under each category, as well as the total to check for next node.
+
+find_next - takes a list of already visited nodes (to not visit them again) and the subset it's working with, and run calc_hx over all the unvisited nodes, finding the next node to visit. returns the optimal node to visit, as well as the data calc_hx calculates for it.
+
+build_tree - recursively builds a tree until there's no unvisited nodes left. if there's no unvisited nodes left but the h(x) of that particular value is still not 0, just take the higher probability and set the value to that in the end.
+
+then load loads in each line into the training_data array and then I build the tree on it.
+read in test data, I get, 10 trials for an average of 83.55 accuracy.
+
+
+
+individual trial data below
+
+Tree building complete in 0.374677 seconds
+Test complete in 0.000558 seconds
+Total percent right: 91.666667%
+Percentage of + right: 96.153846%
+Percentage of - right: 88.235294%
+
+Tree building complete in 0.422347 seconds
+Test complete in 0.001104 seconds
+Total percent right: 87.500000%
+Percentage of + right: 90.625000%
+Percentage of - right: 83.333333%
+
+Tree building complete in 0.416051 seconds
+Test complete in 0.000563 seconds
+Total percent right: 85.454545%
+Percentage of + right: 86.956522%
+Percentage of - right: 84.375000%
+
+Tree building complete in 0.396665 seconds
+Test complete in 0.000570 seconds
+Total percent right: 76.363636%
+Percentage of + right: 66.666667%
+Percentage of - right: 88.000000%
+
+Tree building complete in 0.405572 seconds
+Test complete in 0.000739 seconds
+Total percent right: 86.363636%
+Percentage of + right: 92.857143%
+Percentage of - right: 75.000000%
+
+Tree building complete in 0.338699 seconds
+Test complete in 0.000686 seconds
+Total percent right: 74.242424%
+Percentage of + right: 59.375000%
+Percentage of - right: 88.235294%
+
+Tree building complete in 0.370151 seconds
+Test complete in 0.000681 seconds
+Total percent right: 81.034483%
+Percentage of + right: 77.777778%
+Percentage of - right: 83.870968%
+
+Tree building complete in 0.357598 seconds
+Test complete in 0.000668 seconds
+Total percent right: 82.258065%
+Percentage of + right: 77.142857%
+Percentage of - right: 88.888889%
+
+Tree building complete in 0.444876 seconds
+Test complete in 0.000657 seconds
+Total percent right: 89.393939%
+Percentage of + right: 92.592593%
+Percentage of - right: 87.179487%
+
+Tree building complete in 0.320157 seconds
+Test complete in 0.000603 seconds
+Total percent right: 81.250000%
+Percentage of + right: 76.923077%
+Percentage of - right: 86.363636%
+
+
+

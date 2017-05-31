@@ -1,0 +1,18 @@
+HW3 Report
+Yaqing (Lisa) Xu
+108059610
+
+For some reasons, either my backtrack algorithm is really fast, or that I did all the 3 MRVs entirely wrong. Although all of them check for consistency for far less, they also take up significantly more time. Maybe in conditions where the grid is bigger they'd be faster, but otherwise my backtracking algorithm outspeeds them at 12x12.
+
+forward-checking actually beats constraint propagation with my results, mainly because it's more expensive to run CP than forward checking and there's not a lot of constraints so CP's power isn't really felt here. That and I probably wrote CP less efficiently than it should be. 
+
+However, both do have significant improvements over pure MRV. 
+
+Min Conflicts does not work very well here and often fails to find the answer before the iterations are over.
+
+So from my results alone:
+
+Backtracking > Forward > CP >MRV >>>>> Min Conflicts in terms of speed on this machine, although in theory pure backtracking should be worse than MRV. And in terms of consistency checks made, it is. However my computer did 500k validation checks in under 2 seconds but took about 24 seconds to do the far less consistency checks of CP. So I dunno. 
+
+In terms of pure consistency check (+ actually getting the results) I have Forward > CP >MRV >Backtracking >>>>> Min Conflicts
+
